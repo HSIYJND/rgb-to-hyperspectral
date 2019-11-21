@@ -1,0 +1,11 @@
+# Ignore Everything
+/*
+
+# But not these files
+!.gitignore
+
+!lfw_load.py
+!main.py
+!custom_load.py
+!patching.py
+!predict.py
