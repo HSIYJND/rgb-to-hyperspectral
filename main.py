@@ -72,10 +72,12 @@ csv_logger = CSVLogger(savepath_log, append=True, separator=';')
 callbacks_list = [checkpointer, csv_logger]
 # <<< Create our callbacks
 
-one_image = cv2.imread(rgb_train_filelist[0])
 
-# IMG_SHAPE = [28, 28, 3]
-IMG_SHAPE = np.shape(one_image)
+patch_size = 12
+stride = 5
+
+IMG_SHAPE = [patch_size, patch_size, 3]
+# IMG_SHAPE = np.shape(one_image)
 
 encoder, decoder = build_autoencoder(IMG_SHAPE, 1024)
 
@@ -92,16 +94,21 @@ batch_size_train = 50
 batch_size_valid = 20
 nb_epoch = 100
 
+one_image = cv2.imread(rgb_train_filelist[0])
+one_patch = get_patches(one_image, patch_size, stride)
+patches_obtained = np.shape(one_patch)[0]
+
+print('Size of patches obtained: ', patches_obtained)
 # history = autoencoder.fit_generator(image_generator(sorted(rgb_train_filelist), sorted(inv_train_filelist), batch_size = batch_size_train),
 #                 validation_data=image_generator(sorted(rgb_valid_filelist), sorted(inv_valid_filelist), batch_size = batch_size_valid),
 #                 validation_steps=len(rgb_valid_filelist) / batch_size_valid,
 #                 steps_per_epoch=len(rgb_train_filelist) / batch_size_train,
 #                 epochs=nb_epoch, verbose=1, callbacks=callbacks_list)
 
-history = autoencoder.fit_generator(image_generator(sorted(rgb_train_filelist), sorted(rgb_train_filelist), batch_size = batch_size_train),
-                validation_data=image_generator(sorted(rgb_valid_filelist), sorted(rgb_valid_filelist), batch_size = batch_size_valid),
-                validation_steps=len(rgb_valid_filelist) / batch_size_valid,
+history = autoencoder.fit_generator(image_generator(sorted(rgb_train_filelist), sorted(rgb_train_filelist), batch_size = batch_size_train, patch_size = patch_size, stride = stride),
                 steps_per_epoch=len(rgb_train_filelist) / batch_size_train,
+                validation_data=image_generator(sorted(rgb_valid_filelist), sorted(rgb_valid_filelist), batch_size = batch_size_valid, patch_size = patch_size, stride = stride),
+                validation_steps=len(rgb_valid_filelist) / batch_size_valid,
                 epochs=nb_epoch, verbose=1, callbacks=callbacks_list)
 
 plt.plot(history.history['loss'])
