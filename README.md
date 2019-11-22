@@ -17,3 +17,17 @@ Currently the hyper-spectral images are obtained from [Foster Dataset](https://p
 Each hyper-spectral has 33 channels.
 
 You may have to change channel numbers in the neural network input and output shapes to match your images.
+
+`main_hyper.py` is the program you need to run for training.
+
+Build your neural network in function `build_autoencoder`.
+
+Following variables can be changed (and should be fine-tuned) according to your needs
+
+```
+patch_size = 100
+stride = 100
+batch_size_train = 2
+batch_size_valid = 1
+nb_epoch = 10
+```
