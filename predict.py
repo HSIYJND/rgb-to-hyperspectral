@@ -8,16 +8,9 @@ from custom_load import *
 
 from keras.models import Model, load_model
 
-rgb_train_filelist = glob.glob('./lfw_images/orig_images_train/*.jpg')
-inv_train_filelist = glob.glob('./lfw_images/invert_images_train/*.jpg')
+rgb_train_filelist = glob.glob('./lfw_images/orig_images_test/*.jpg')
+inv_train_filelist = glob.glob('./lfw_images/invert_images_test/*.jpg')
 
-# rgb_valid_filelist = glob.glob('./all_images/orig_images_valid/*.jpg')
-# inv_valid_filelist = glob.glob('./all_images/invert_images_valid/*.jpg')
-
-# model_location = './Trained_Models/MNIST_reconstruct-20191120200854/e-082-vl-0.017.h5'
-# model_location = './Trained_Models/lfw_reconstruct-20191121155648_invert/e-099-vl-0.004.h5'
-# model_location = './Trained_Models/lfw_reconstruct-20191121160505_orig/e-076-vl-0.004.h5'
-# model_location = './Trained_Models/lfw_reconstruct-20191121161233_orig_1024/e-093-vl-0.000.h5'
 model_location = './Trained_Models/lfw_reconstruct-20191121223432/e-029-vl-0.000.h5'
 my_model = load_model(model_location)
 # opt = Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, decay=0.0001)

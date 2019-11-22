@@ -9,3 +9,7 @@
 !custom_load.py
 !patching.py
 !predict.py
+!predict_hyper.py
+!load_hyper.py
+!main_hyper.py
+!./Hyper
