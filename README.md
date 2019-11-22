@@ -1,4 +1,4 @@
-### Preliminary work
+### Preliminary work on hyper-spectral images
 
 Create following folders:
 
