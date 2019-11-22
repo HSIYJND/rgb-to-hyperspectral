@@ -3,6 +3,7 @@
 
 # But not these files
 !.gitignore
+!README.md
 
 !lfw_load.py
 !main.py
@@ -12,4 +13,3 @@
 !predict_hyper.py
 !load_hyper.py
 !main_hyper.py
-!./Hyper
