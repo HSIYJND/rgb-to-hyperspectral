@@ -19,6 +19,9 @@ Each hyper-spectral has 33 channels.
 You may have to change channel numbers in the neural network input and output shapes to match your images.
 
 `main_hyper.py` is the program you need to run for training.
+`custom_load.py` is where all magical work is happening for image_generator and patches extraction.
+`predict_hyper.py` is used to just visualize the patches (3 channel in each displayed patch = 11 images for each patch in each hyper image).
+Extracting some code from `predict` and writing it in `predict_hyper`, you may be able to predict the results.
 
 Build your neural network in function `build_autoencoder`.
 
