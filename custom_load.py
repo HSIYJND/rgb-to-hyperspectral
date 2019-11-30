@@ -102,6 +102,77 @@ def image_generator_with_hyper(rgb_files, hyper_files, batch_size, patch_size, s
 
           yield(rgb_batch_input, hyper_batch_input)
 
+def nested_image_generator(rgb_files_in, rgb_files_out, patch_batch_size, patch_size, stride):
+    one_image = get_input_normal(rgb_files_in[0])
+    number_of_patches_in_one_image = np.shape(get_patches(one_image, patch_size, stride))[0]
+
+    if number_of_patches_in_one_image > patch_batch_size:
+        number_of_legal_inner_strides = int(number_of_patches_in_one_image / patch_batch_size)
+        if (number_of_patches_in_one_image % patch_batch_size) == 0:
+            number_of_allowed_inner_strides = number_of_legal_inner_strides
+        else:
+            number_of_allowed_inner_strides = number_of_legal_inner_strides + 1
+        last_index_start = number_of_patches_in_one_image - patch_batch_size
+        for rgb_batch, hyper_batch in image_generator_with_hyper_rgb(sorted(rgb_files_in), sorted(rgb_files_out), actual_image_batch_size = 1, patch_size = patch_size, stride = stride):
+            for i in range(0, number_of_allowed_inner_strides):
+                if i < number_of_legal_inner_strides:
+                    return_rgb_patch = rgb_batch[i*patch_batch_size:(i+1)*patch_batch_size]
+                    return_hyper_patch = hyper_batch[i*patch_batch_size:(i+1)*patch_batch_size]
+                else:
+                    return_rgb_patch = rgb_batch[last_index_start:]
+                    return_hyper_patch = hyper_batch[last_index_start:]
+                yield(return_rgb_patch, return_hyper_patch)
+    else:
+        new_of_actual_image_batch_size = int(np.ceil(patch_batch_size / number_of_patches_in_one_image))
+        number_of_total_patches = number_of_patches_in_one_image * new_of_actual_image_batch_size
+        number_of_legal_inner_strides = int(number_of_total_patches / patch_batch_size)
+        if (number_of_total_patches % patch_batch_size) == 0:
+            number_of_allowed_inner_strides = number_of_legal_inner_strides
+        else:
+            number_of_allowed_inner_strides = number_of_legal_inner_strides + 1
+        last_index_start = number_of_total_patches - patch_batch_size
+        for rgb_batch, hyper_batch in image_generator_with_hyper_rgb(sorted(rgb_files_in), sorted(rgb_files_out), actual_image_batch_size = new_of_actual_image_batch_size, patch_size = patch_size, stride = stride):
+            for i in range(0, number_of_allowed_inner_strides):
+                if i < number_of_legal_inner_strides:
+                    return_rgb_patch = rgb_batch[i*patch_batch_size:(i+1)*patch_batch_size]
+                    return_hyper_patch = hyper_batch[i*patch_batch_size:(i+1)*patch_batch_size]
+                else:
+                    return_rgb_patch = rgb_batch[last_index_start:]
+                    return_hyper_patch = hyper_batch[last_index_start:]
+                yield(return_rgb_patch, return_hyper_patch)
+
+def image_generator_with_hyper_rgb(rgb_files, hyper_files, actual_image_batch_size, patch_size, stride):
+
+    while True:
+          # Select files (paths/indices) for the batch
+          idx = np.random.choice(np.arange(len(rgb_files)), actual_image_batch_size, replace=False)
+
+          rgb_batch_paths = np.array(rgb_files)[idx.astype(int)]
+          hyper_batch_paths = np.array(hyper_files)[idx.astype(int)]
+
+          rgb_batch_input = []
+          hyper_batch_input = []
+
+          # Read in each input, perform preprocessing and get labels
+          for rgb_path, hyper_path in zip(rgb_batch_paths, hyper_batch_paths):
+
+              rgb_input = get_input_normal(rgb_path)
+              rgb_input = preprocess_input(rgb_input)
+              rgb_patches = get_patches(rgb_input, patch_size, stride)
+
+              hyper_input = get_input_normal(hyper_path)
+              hyper_input = preprocess_input(hyper_input)
+              hyper_patches = get_patches(hyper_input, patch_size, stride)
+
+              if rgb_batch_input == []:
+                  rgb_batch_input = rgb_patches
+                  hyper_batch_input = hyper_patches
+              else:
+                  rgb_batch_input = np.concatenate((rgb_batch_input, rgb_patches), axis = 0)
+                  hyper_batch_input = np.concatenate((hyper_batch_input, hyper_patches), axis = 0)
+
+          yield(rgb_batch_input, hyper_batch_input)
+
 def show_hyper_patches(hyper_batch, patch_size):    # in image generator -> keep batch_size = 1
     num_of_patches = np.shape(hyper_batch)[0]
     possible_images = np.shape(hyper_batch[0])[2] / 3
