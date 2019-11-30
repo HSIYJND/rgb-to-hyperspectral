@@ -12,7 +12,7 @@ from keras.layers import MaxPooling2D, UpSampling2D
 from keras.layers import concatenate
 from keras.models import Sequential, Model
 
-from keras.optimizers import Adam
+from keras import optimizers
 
 from datetime import datetime
 
@@ -73,8 +73,8 @@ def unet(pretrained_weights = None,input_size = (256,256,3), output_channels = 3
     merge9 = concatenate([conv1,up9], axis = 3)
     conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge9)
     conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
-    conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
-    conv10 = Conv2D(output_channels, 1, activation = 'sigmoid')(conv9)
+    # conv9 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
+    conv10 = Conv2D(output_channels, 1, activation = 'linear')(conv9)
 
     model = Model(input = inputs, output = conv10)
     return model
@@ -138,7 +138,9 @@ code = encoder(inp)
 reconstruction = decoder(code)
 
 my_model = unet(input_size = (patch_size,patch_size,3), output_channels = 3)
-my_model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])
+sgd = optimizers.SGD(lr=0.005, decay=1e-6, momentum=0.9, nesterov=True)
+my_model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['accuracy'])
+# my_model.compile(optimizer = Adam(lr = 1e-4), loss = 'categorical_crossentropy', metrics = ['accuracy'])
 # my_model.compile(optimizer='adamax', loss='mse')
 print(my_model.summary())
 
